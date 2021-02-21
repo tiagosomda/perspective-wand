@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class LockPerspectiveScaling : MonoBehaviour
 {
+    private Transform pointerTransform;
     private Transform cameraTransform;
     private LayerMask layerMask;
     private float maxPushBackDistance = 1000;
@@ -26,10 +27,12 @@ public class LockPerspectiveScaling : MonoBehaviour
         GameObject obj,
         Transform cameraTransform,
         float maxPushBackDistance,
-        LayerMask blockPushBackLayers)
+        LayerMask blockPushBackLayers,
+        Transform pointerTransform = null)
     {
         selectedObj = obj;
         this.cameraTransform = cameraTransform;
+        this.pointerTransform = pointerTransform == null ? cameraTransform : pointerTransform;
         this.maxPushBackDistance = maxPushBackDistance;
         this.layerMask = blockPushBackLayers;
 
@@ -73,8 +76,8 @@ public class LockPerspectiveScaling : MonoBehaviour
     private void AdjustPosition()
     {
         selectedObj.transform.position = GetFarthestPosition(
-            cameraTransform.forward,
-            cameraTransform.position,
+            pointerTransform.forward,
+            pointerTransform.position,
             selectedObj.transform.rotation,
             maxPushBackDistance);
     }
@@ -98,12 +101,12 @@ public class LockPerspectiveScaling : MonoBehaviour
         => new Vector3(initialScale.x*scale,initialScale.y*scale,initialScale.z*scale);
 
     private Vector3 GetFarthestPosition(
-        Vector3 cameraDirection,
-        Vector3 cameraPosition,
+        Vector3 pointerDirection,
+        Vector3 pointerPosition,
         Quaternion rotation,
         float maxDistance)
     {
-        var nextPosition = cameraPosition + cameraDirection;
+        var nextPosition = pointerPosition + pointerDirection;
         var previousPosition = nextPosition;
 
         Collider[] colliders = null;
@@ -115,9 +118,9 @@ public class LockPerspectiveScaling : MonoBehaviour
         while(colliders == null || colliders.Length == 0)
         {
             previousPosition = nextPosition; 
-            nextPosition += cameraDirection*0.1f;
+            nextPosition += pointerDirection*0.1f;
 
-            distance = Vector3.Distance(cameraPosition, nextPosition);
+            distance = Vector3.Distance(pointerPosition, nextPosition);
             scale = GetCurrentScale(GetScalingFactor(distance));
             colliders = Physics.OverlapBox(nextPosition, scale/ 2.0f, rotation, layerMask);
 
