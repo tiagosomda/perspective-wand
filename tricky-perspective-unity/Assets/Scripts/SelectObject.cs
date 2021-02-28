@@ -10,6 +10,10 @@ public class SelectObject : MonoBehaviour
     public LayerMask blockPushBackLayers;
     public bool Selecting = true;
     public LockPerspectiveScaling lockPerspectiveScaling;
+    public AudioSource AudioSourceGlobal;
+    public AudioClip PowerUp;
+    public AudioClip PowerDown;
+
 
     private void Awake()
     {
@@ -23,6 +27,7 @@ public class SelectObject : MonoBehaviour
             if(Input.GetMouseButtonDown(0))
             {
                 lockPerspectiveScaling.StopScaling();
+                //AudioSourceGlobal.PlayOneShot(PowerDown);
                 Selecting = true;
             }
             return;
@@ -34,6 +39,9 @@ public class SelectObject : MonoBehaviour
         {
             Selecting = false;
             lockPerspectiveScaling.StartScaling(selectedObject, CameraTransform, hitDistance, blockPushBackLayers);
+
+            AudioSourceGlobal.pitch = Random.Range(1.0f, 2.0f);
+            AudioSourceGlobal.PlayOneShot(PowerUp);
         }
     }
 

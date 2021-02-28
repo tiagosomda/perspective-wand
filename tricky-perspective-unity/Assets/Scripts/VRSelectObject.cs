@@ -15,6 +15,11 @@ public class VRSelectObject : MonoBehaviour
     public LockPerspectiveScaling lockPerspectiveScaling;
     public LayerMask blockPushBackLayers;
 
+    public AudioSource AudioSourceGlobal;
+    public AudioClip PowerUp;
+    public AudioClip PowerDown;
+
+
     UnityEngine.XR.InputDevice leftHand;
     UnityEngine.XR.InputDevice head;
 
@@ -84,6 +89,9 @@ public class VRSelectObject : MonoBehaviour
                     if(selectedObject != null)
                     {
                         lockPerspectiveScaling.StartScaling(selectedObject, CameraTransform, hitDistance, blockPushBackLayers, leftHandTransform);
+
+                        AudioSourceGlobal.pitch = Random.Range(1.0f, 2.0f);
+                        AudioSourceGlobal.PlayOneShot(PowerUp);
                     }
                 }
             }

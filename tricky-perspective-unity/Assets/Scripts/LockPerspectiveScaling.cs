@@ -13,6 +13,7 @@ public class LockPerspectiveScaling : MonoBehaviour
     private float initialDistance;
     private Vector3 initialScale;
 
+    private Vector3 DebugCube;
 
 
     private List<LockPerspectiveTransformer> perspectiveTransformers = new List<LockPerspectiveTransformer>();
@@ -122,7 +123,9 @@ public class LockPerspectiveScaling : MonoBehaviour
 
             distance = Vector3.Distance(pointerPosition, nextPosition);
             scale = GetCurrentScale(GetScalingFactor(distance));
-            colliders = Physics.OverlapBox(nextPosition, scale/ 2.0f, rotation, layerMask);
+            var boxBounds = scale / 2.0f;
+            DebugCube = boxBounds;
+            colliders = Physics.OverlapBox(nextPosition, boxBounds, rotation, layerMask);
 
             if(distance > maxDistance)
             {
@@ -131,6 +134,12 @@ public class LockPerspectiveScaling : MonoBehaviour
         }
 
         return previousPosition;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawCube(this.transform.position, DebugCube);
     }
 
 }

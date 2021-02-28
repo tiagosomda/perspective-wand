@@ -31,6 +31,6 @@ public class LPRenders : LockPerspectiveTransformer
         }
 
         var render = parent.gameObject.GetComponent<Renderer>();
-        renderers.Add(render);
+        if(render != null) renderers.Add(render);
     }
 }
