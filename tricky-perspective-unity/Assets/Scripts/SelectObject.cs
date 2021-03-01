@@ -14,9 +14,11 @@ public class SelectObject : MonoBehaviour
     public AudioClip PowerUp;
     public AudioClip PowerDown;
 
+    private LayerMask canScaleLayer;
 
     private void Awake()
     {
+        canScaleLayer = LayerMask.NameToLayer("CanScale");
         lockPerspectiveScaling = GameObject.FindObjectOfType<LockPerspectiveScaling>();
     }
 
@@ -50,7 +52,10 @@ public class SelectObject : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(CameraTransform.position, CameraTransform.TransformDirection(Vector3.forward), out hit, hitDistance, layerMask))
         {
-            return hit.transform.gameObject;
+            if( canScaleLayer== hit.transform.gameObject.layer)
+            {
+                return hit.transform.gameObject;
+            }
         }
 
         return null;
