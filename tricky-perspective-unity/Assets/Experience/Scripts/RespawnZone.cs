@@ -9,8 +9,6 @@ public class RespawnZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Crossed Respawn Zone : " + other.gameObject);
-
         var respawnObj = other.gameObject;
 
         var controller = respawnObj.GetComponent<CharacterController>();
