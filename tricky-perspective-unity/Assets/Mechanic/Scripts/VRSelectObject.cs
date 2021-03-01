@@ -27,9 +27,11 @@ public class VRSelectObject : MonoBehaviour
 
     private GameObject selectedObject;
 
+    private LayerMask canScaleLayer;
 
     private void Awake()
     {
+        canScaleLayer = LayerMask.NameToLayer("CanScale");
         lockPerspectiveScaling = GameObject.FindObjectOfType<LockPerspectiveScaling>();
     }
 
@@ -81,7 +83,7 @@ public class VRSelectObject : MonoBehaviour
 
             if (selectedObject == null)
             {
-                leftHandRenderer.material.color = temp != null ? Color.red : Color.white;
+                leftHandRenderer.material.color = temp != null ? Color.magenta : Color.white;
 
                 if (isPressingTriggerButton && temp != null)
                 {
@@ -122,11 +124,13 @@ public class VRSelectObject : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(leftHandTransform.position, leftHandTransform.TransformDirection(Vector3.forward), out hit, hitDistance, layerMask))
         {
-            line.SetPositions(new Vector3[] { leftHandTransform.position, hit.point });
-            return hit.transform.gameObject;
+            if (canScaleLayer == hit.transform.gameObject.layer)
+            {
+                return hit.transform.gameObject;
+            }
         }
 
-        line.SetPositions(new Vector3[] { leftHandTransform.position, leftHandTransform.TransformDirection(Vector3.forward) * hitDistance });
+        //line.SetPositions(new Vector3[] { leftHandTransform.position, leftHandTransform.TransformDirection(Vector3.forward) * hitDistance });
         return null;
     }
 }
