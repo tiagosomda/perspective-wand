@@ -7,11 +7,19 @@ using UnityEngine.XR.Interaction.Toolkit;
 public class MovementProvider : LocomotionProvider
 {
     public float speed = 1.0f;
+    public float jumpForce = 1.0f;
+    public float jumpTime = 1.0f;
     public float gravityMultiplier = 1.0f;
     public List<XRController> controllers = null;
+    public List<XRController> jumpControllers = null;
 
     private CharacterController characterController = null;
     private GameObject head = null;
+
+    private bool jumpButtonPressed = false;
+    private bool isJumping = false;
+    private float jumpingCountdown;
+    private Vector3 movement = Vector3.zero;
 
     protected override void Awake()
     {
@@ -28,7 +36,7 @@ public class MovementProvider : LocomotionProvider
     {
         PositionController();
         CheckForInput();
-        ApplyGravity();
+        ApplyVerticalMovement();
     }
 
     private void PositionController()
@@ -59,11 +67,27 @@ public class MovementProvider : LocomotionProvider
                 CheckForMovement(controller.inputDevice);
             }
         }
+
+        bool isPressingJump = false;
+        foreach (XRController controller in jumpControllers)
+        {
+            if (controller.inputDevice.TryGetFeatureValue(CommonUsages.primaryButton, out bool pressed))
+            {
+                if (pressed)
+                {
+                    isPressingJump = true;
+                    break;
+                }
+            }
+        }
+
+        jumpButtonPressed = isPressingJump;
     }
 
     private void CheckForMovement(InputDevice device)
     {
-        if(device.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 position))
+        movement = Vector3.zero;
+        if (device.TryGetFeatureValue(CommonUsages.primary2DAxis, out Vector2 position))
         {
             StartMove(position);
         }
@@ -79,14 +103,43 @@ public class MovementProvider : LocomotionProvider
         direction = Quaternion.Euler(headRotation) * direction;
 
         // apply speed and move
-        Vector3 movement = direction * speed;
-        characterController.Move(movement * Time.deltaTime);
+        movement += direction * speed;
     }
 
-    private void ApplyGravity()
+    private void ApplyVerticalMovement()
     {
-        Vector3 gravity = new Vector3(0,Physics.gravity.y * gravityMultiplier, 0);
-        gravity.y *= Time.deltaTime;
-        characterController.Move(gravity * Time.deltaTime);
+        //if (isJumping == false && characterController.isGrounded && Input.GetKey(KeyCode.Space))
+        if (isJumping == false && characterController.isGrounded && jumpButtonPressed)
+        {
+            isJumping = true;
+            jumpingCountdown = jumpTime;
+        }
+
+        if (isJumping == false)
+        {
+
+            movement.y += (Physics.gravity.y * gravityMultiplier) * Time.deltaTime;
+        }
+
+
+        if (isJumping)
+        {
+            if (jumpingCountdown > 0)
+            {
+                jumpingCountdown -= Time.deltaTime;
+                movement.y = jumpingCountdown * jumpForce;
+            }
+            else
+            {
+                isJumping = false;
+            }
+
+            if (jumpButtonPressed == false)
+            {
+                isJumping = false;
+            }
+        }
+
+        characterController.Move(movement * Time.deltaTime);
     }
 }
